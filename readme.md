@@ -1,4 +1,4 @@
-# Project Name
+# AI Detection
 
  Add short description of project here > 
 
