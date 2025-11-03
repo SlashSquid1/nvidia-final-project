@@ -9,12 +9,68 @@ This model classifies images as one of two categories: Real or Fake. Real images
 ## Why I Chose This Project
 
 In 2025, the use of AI has increased significantly compared to past years. With greater usage, AI has also become more advanced, especially in the generative field, making it much more difficult to distinguish the difference. The group most widely affected are the elderly, as they have less exposure and knowledge of AI. To help counteract this issue, I've trained this AI model to detect the difference between real and fake images.
-![https://en.wikipedia.org/wiki/Artificial_intelligence](<img width="1280" height="960" alt="20250202__AI__(search_term)_on_Google_Trends" src="https://github.com/user-attachments/assets/533592c7-047c-4aaa-9337-6f20f6427f5b" />
-)
+![A graph made by Google showing the percentage of AI usage from 2023compared to 2024](https://www.gstatic.com/marketing-cms/assets/images/91/91/bafdc1804625b155e331f272d51a/google-ipsos-ai-use-1200x800.png)
 
-## Running this project
+## The Dataset
 
-1. Add steps for running this project.
-2. Make sure to include any required libraries that need to be installed for your project to run.
+[This folder](https://drive.google.com/drive/folders/1QkXt5ZLUP-QBkR3w6nv-QdFveoJagZZv?usp=sharing) contains the model and the classification dataset. To set up and use them, please follow the guide below.
 
-[View a video explanation here](video link)
+## Setup
+### 1. Install Jetson Inference
+
+```
+git clone --recursive https://github.com/dusty-nv/jetson-inference
+cd jetson-inference
+mkdir build
+cd build
+cmake ../
+make
+sudo make install
+```
+
+### 2. Prepare Dataset
+
+Organize images like this:
+```
+jetson-inference/python/training/classification/data/AI/
+├── train/
+│   ├── fake/
+│   ├── real/
+├── val/
+└── test/
+
+```
+
+### 3. Training
+
+1. Enable more memory: `echo 1 | sudo tee /proc/sys/vm/overcommit_memory`
+2. Train the model (I used batch size of 4)
+  ```
+  cd jetson-inference
+  ./docker/run.sh
+  cd python/training/classification
+  python3 train.py --model-dir=models/AI data/archive
+  ```
+3. Export Model
+  ```
+  # Still in docker container:
+  python3 onnx_export.py --model-dir=models/AI
+  ```
+
+
+## Running the Model
+
+### Set Variables
+```
+cd jetson-inference/python/training/classification
+NET=models/AI
+DATASET=data/Data
+```
+
+### Test on Image
+```
+imagenet.py --model=$NET/resnet18.onnx --input_blob=input_0 --output_blob=output_0 --labels=$DATASET/labels.txt $DATASET/test/fake/<image.jpg> result.jpg
+```
+Replace <image.jpg> with your actual image.
+
+![output](https://github.com/user-attachments/assets/0c817494-a5f7-4d17-89f5-32ad0dd7291d)
