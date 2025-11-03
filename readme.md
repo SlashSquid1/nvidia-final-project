@@ -64,7 +64,7 @@ jetson-inference/python/training/classification/data/AI/
 ```
 cd jetson-inference/python/training/classification
 NET=models/AI
-DATASET=data/Data
+DATASET=data/archive
 ```
 
 ### Test on Image
